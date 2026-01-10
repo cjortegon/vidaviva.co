@@ -27,13 +27,13 @@ jobs:
     #     echo "BACKUP_CREATED=true" >> $GITHUB_ENV
     
     # Deploy Lambda
-    - name: Deploy Lambda
-      run: |
-        cd backend
-        zip -r function.zip .
-        aws lambda update-function-code \
-          --function-name ${{ secrets.LAMBDA_FUNCTION_NAME }} \
-          --zip-file fileb://function.zip
+    # - name: Deploy Lambda
+    #   run: |
+    #     cd backend
+    #     zip -r function.zip .
+    #     aws lambda update-function-code \
+    #       --function-name ${{ secrets.LAMBDA_FUNCTION_NAME }} \
+    #       --zip-file fileb://function.zip
     
     # Wait and test Lambda
     # - name: Test Lambda
@@ -62,10 +62,10 @@ jobs:
           --paths "/*"
     
     # Rollback on failure
-    - name: Rollback Lambda on failure
-      if: failure() && env.BACKUP_CREATED == 'true'
-      run: |
-        echo "Deployment failed, rolling back Lambda..."
-        # Aquí iría lógica de restore desde backup
-        # Por ahora solo notifica
-        echo "⚠️ Manual rollback required"
+    # - name: Rollback Lambda on failure
+    #   if: failure() && env.BACKUP_CREATED == 'true'
+    #   run: |
+    #     echo "Deployment failed, rolling back Lambda..."
+    #     # Aquí iría lógica de restore desde backup
+    #     # Por ahora solo notifica
+    #     echo "⚠️ Manual rollback required"
