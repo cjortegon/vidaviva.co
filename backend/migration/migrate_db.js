@@ -21,8 +21,8 @@ const db = new DatabseConnection({
 const DEFAULT_OWNER = 'info@vidaviva.co'
 
 // Migration flags - set to false to skip a step
-const ENABLE_FOODS_MIGRATION = true
-const ENABLE_RECIPES_MIGRATION = true
+const ENABLE_FOODS_MIGRATION = false
+const ENABLE_RECIPES_MIGRATION = false
 
 // ANSI color codes for console output
 const colors = {
