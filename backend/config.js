@@ -27,24 +27,6 @@ module.exports = {
     resend: {
         vecciToken: process.env.RESEND_VECCI,
     },
-    vecci: {
-        topics: {
-            admin: 'vecci-vadmin',
-            frontdesk: 'vecci-vfrontdesk'
-        },
-        db_model: 'pruebasvecci',
-        chat_id: '326763992',
-        authorizedEmail: 'cjortegon@gmail.com',
-        infoEmail: 'info@vecci.co',
-        secret: process.env.VECCI_SECRET,
-        enableQRHashGeneration: true, // Feature flag for QR hash generation
-        whatsapp: {
-            accountSid: process.env.VECCI_WHATSAPP_SID,
-            authToken: process.env.VECCI_WHATSAPP_TOKEN,
-            sender: process.env.VECCI_WHATSAPP_SENDER,
-        },
-        firebaseServiceAccount: JSON.parse(Buffer.from(process.env.VECCI_FIREBASE, 'base64').toString()),
-    },
     velavida: {
         bases: {
             images: 'https://s3.amazonaws.com/velavida-images/'
