@@ -20,34 +20,34 @@ jobs:
         aws-region: ${{ secrets.AWS_REGION }}
     
     # Backup actual version
-    - name: Backup current Lambda
-      run: |
-        aws lambda get-function --function-name ${{ secrets.LAMBDA_FUNCTION_NAME }} \
-          --query 'Code.Location' --output text > lambda-backup-url.txt
-        echo "BACKUP_CREATED=true" >> $GITHUB_ENV
+    # - name: Backup current Lambda
+    #   run: |
+    #     aws lambda get-function --function-name ${{ secrets.LAMBDA_FUNCTION_NAME }} \
+    #       --query 'Code.Location' --output text > lambda-backup-url.txt
+    #     echo "BACKUP_CREATED=true" >> $GITHUB_ENV
     
     # Deploy Lambda
-    - name: Deploy Lambda
-      run: |
-        cd backend
-        zip -r function.zip .
-        aws lambda update-function-code \
-          --function-name ${{ secrets.LAMBDA_FUNCTION_NAME }} \
-          --zip-file fileb://function.zip
+    # - name: Deploy Lambda
+    #   run: |
+    #     cd backend
+    #     zip -r function.zip .
+    #     aws lambda update-function-code \
+    #       --function-name ${{ secrets.LAMBDA_FUNCTION_NAME }} \
+    #       --zip-file fileb://function.zip
     
     # Wait and test Lambda
-    - name: Test Lambda
-      id: test_lambda
-      run: |
-        sleep 10
-        aws lambda invoke --function-name ${{ secrets.LAMBDA_FUNCTION_NAME }} \
-          --payload '{"test": true}' response.json
-        cat response.json
-        # Verificar que no haya error
-        if grep -q "errorMessage" response.json; then
-          echo "Lambda test failed"
-          exit 1
-        fi
+    # - name: Test Lambda
+    #   id: test_lambda
+    #   run: |
+    #     sleep 10
+    #     aws lambda invoke --function-name ${{ secrets.LAMBDA_FUNCTION_NAME }} \
+    #       --payload '{"test": true}' response.json
+    #     cat response.json
+    #     # Verificar que no haya error
+    #     if grep -q "errorMessage" response.json; then
+    #       echo "Lambda test failed"
+    #       exit 1
+    #     fi
     
     # Deploy S3
     - name: Deploy to S3
@@ -62,10 +62,10 @@ jobs:
           --paths "/*"
     
     # Rollback on failure
-    - name: Rollback Lambda on failure
-      if: failure() && env.BACKUP_CREATED == 'true'
-      run: |
-        echo "Deployment failed, rolling back Lambda..."
-        # Aquí iría lógica de restore desde backup
-        # Por ahora solo notifica
-        echo "⚠️ Manual rollback required"
+    # - name: Rollback Lambda on failure
+    #   if: failure() && env.BACKUP_CREATED == 'true'
+    #   run: |
+    #     echo "Deployment failed, rolling back Lambda..."
+    #     # Aquí iría lógica de restore desde backup
+    #     # Por ahora solo notifica
+    #     echo "⚠️ Manual rollback required"
