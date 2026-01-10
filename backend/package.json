@@ -1,0 +1,22 @@
+{
+  "name": "vecci-router",
+  "version": "1.0.0",
+  "description": "",
+  "main": "config.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Camilo Ortegon",
+  "license": "ISC",
+  "dependencies": {
+    "aws-sdk": "2.1525.0",
+    "body-parser": "2.2.0",
+    "express": "5.1.0",
+    "cors": "2.8.5",
+    "crypto-js": "4.2.0",
+    "firebase-admin": "13.6.0",
+    "pako": "2.1.0",
+    "pg": "8.11.5",
+    "superagent": "8.0.9"
+  }
+}
