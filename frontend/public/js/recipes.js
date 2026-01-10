@@ -11,33 +11,31 @@ const courses = {
     cocteleria: 'cocktail',
     barista: 'barista',
 }
-const baseUrl = 'https://3bvjulkoul.execute-api.us-east-1.amazonaws.com/prod'
+const baseUrl = 'https://gq3ykajn8g.execute-api.us-east-1.amazonaws.com/prod/client/vidaviva'
 let baseImage = ''
 
 function loadRecipes() {
     const collection = document.getElementById('cards-collection');
 
-    var xhr = new XMLHttpRequest();
-    xhr.open("POST", baseUrl+'/graphql', true);
-    xhr.setRequestHeader('Content-Type', 'application/json');
-    xhr.setRequestHeader('Authorization', 'a');
-    const query = getQuery()
-    xhr.send(JSON.stringify({api: 3, query: query.query}));
-    xhr.onload = function() {
-        try {
-            const {data} = JSON.parse(this.responseText);
-            console.log('response', data)
-            const {bases} = data
-            const recipes = data[query.collection]
-            baseImage = bases.images
+    fetch(baseUrl + '/recipes/random', {
+            headers: {
+                'Authorization': 'a'
+            }
+        })
+        .then(response => response.json())
+        .then(json => {
+            const data = json.data
+            console.log(JSON.stringify(json))
+            const recipes = data.randomRecipes || []
+            // baseImage = data.bases.images || ''
+            baseImage = '/'
             collection.innerHTML = recipes
                 .filter(function(recipe){return recipe.cover && recipe.cover.length > 0})
                 .map(buildCard).join('')
-        } catch(error) {
+        })
+        .catch(error => {
             console.log('error', error)
-        }
-    }
-    
+        })
 }
 
 function getSearch() {
