@@ -1,0 +1,156 @@
+doctype html
+html(lang='en')
+  head
+    meta(charset='utf-8')
+    meta(name='viewport' content='width=device-width, initial-scale=1, shrink-to-fit=no')
+    meta(http-equiv='X-UA-Compatible' content='ie=edge')
+
+    meta(name="description", content="Come sano, vive mejor")
+    meta(name="keywords", content="alimentate")
+    meta(name="author", content="Vela Vida")
+    meta(name="copyright", content="Camilo Ortegón")
+    meta(name="application-name", content="VelaVida")
+
+    meta(property="og:title", content=og.title)
+    meta(property="og:site_name", content="VelaVida")
+    meta(property="og:type", content=og.type)
+    meta(property="og:image", content=og.image)
+    meta(property="og:url", content=og.url)
+    meta(property="og:description", content=og.description)
+
+    title !{og.title}
+    link(href='https://fonts.googleapis.com/css?family=Cormorant+Infant', rel='stylesheet')
+    link(href='https://fonts.googleapis.com/css?family=Quattrocento+Sans', rel='stylesheet')
+    script(type='text/javascript').
+      (function() { var css = document.createElement('link'); css.href = 'https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css'; css.rel = 'stylesheet'; css.type = 'text/css'; document.getElementsByTagName('head')[0].appendChild(css); })();
+    link(rel='stylesheet' href='/css/app.css')
+    link(rel='stylesheet' href='/css/custom.css')
+    link(rel='stylesheet' href='/css/theme.css')
+
+    // Favicon
+    link(rel='apple-touch-icon', sizes='57x57', href='/favicon/apple-icon-57x57.png')
+    link(rel='apple-touch-icon', sizes='60x60', href='/favicon/apple-icon-60x60.png')
+    link(rel='apple-touch-icon', sizes='72x72', href='/favicon/apple-icon-72x72.png')
+    link(rel='apple-touch-icon', sizes='76x76', href='/favicon/apple-icon-76x76.png')
+    link(rel='apple-touch-icon', sizes='114x114', href='/favicon/apple-icon-114x114.png')
+    link(rel='apple-touch-icon', sizes='120x120', href='/favicon/apple-icon-120x120.png')
+    link(rel='apple-touch-icon', sizes='144x144', href='/favicon/apple-icon-144x144.png')
+    link(rel='apple-touch-icon', sizes='152x152', href='/favicon/apple-icon-152x152.png')
+    link(rel='apple-touch-icon', sizes='180x180', href='/favicon/apple-icon-180x180.png')
+    link(rel='icon', type='image/png', sizes='192x192', href='/favicon/android-icon-192x192.png')
+    link(rel='icon', type='image/png', sizes='32x32', href='/favicon/favicon-32x32.png')
+    link(rel='icon', type='image/png', sizes='96x96', href='/favicon/favicon-96x96.png')
+    link(rel='icon', type='image/png', sizes='16x16', href='/favicon/favicon-16x16.png')
+    link(rel='manifest', href='/manifest.json')
+    meta(name='msapplication-TileColor', content='#F90A58')
+    meta(name='msapplication-TileImage', content='/favicon/ms-icon-144x144.png')
+    meta(name='theme-color', content='#F90A58')
+
+  body
+    nav.navbar.navbar-expand-lg.navbar-light.bg-white.fixed-top
+      a.navbar-brand.font-weight-bolder.mr-3(href='/')
+        img(src='/icons/logo.svg', width=30, height=30)
+      button.navbar-light.navbar-toggler(type='button' data-toggle='collapse' data-target='#navbarsDefault' aria-controls='navbarsDefault' aria-expanded='false' aria-label='Toggle navigation')
+        span.navbar-toggler-icon
+      #navbarsDefault.collapse.navbar-collapse
+        ul.navbar-nav.mr-auto.align-items-center
+          form(action='/').bd-search.hidden-sm-down
+            input#search-input.form-control.bg-graylight.border-0.font-weight-bold(type='text' placeholder='Buscar...' autocomplete='off' name='s' value=query.s)
+            #search-results.dropdown-menu.bd-search-results
+        ul.navbar-nav.ml-auto.align-items-center
+          li.nav-item
+            a.nav-link.active(href='/') Inicio
+          //- li.nav-item
+          //-   a.nav-link(href='post.html') Post
+          //- li.nav-item
+          //-   a.nav-link(href='author.html')
+          //-     img.rounded-circle.mr-2(src='assets/img/av.png' width='30')
+          //-     span.align-middle Author
+          li.nav-item.dropdown
+            a#dropdown02.nav-link(href='#' data-toggle='dropdown' aria-haspopup='true' aria-expanded='false')
+              svg._3DJPT(style='margin-top:10px;' version='1.1' viewBox='0 0 32 32' width='21' height='21' aria-hidden='false' data-reactid='71')
+                path(d='M7 15.5c0 1.9-1.6 3.5-3.5 3.5s-3.5-1.6-3.5-3.5 1.6-3.5 3.5-3.5 3.5 1.6 3.5 3.5zm21.5-3.5c-1.9 0-3.5 1.6-3.5 3.5s1.6 3.5 3.5 3.5 3.5-1.6 3.5-3.5-1.6-3.5-3.5-3.5zm-12.5 0c-1.9 0-3.5 1.6-3.5 3.5s1.6 3.5 3.5 3.5 3.5-1.6 3.5-3.5-1.6-3.5-3.5-3.5z' data-reactid='22')
+            .dropdown-menu.dropdown-menu-right.shadow-lg(aria-labelledby='dropdown02')
+              h4.dropdown-header.display-4
+                | Descarga nuestra App
+              .dropdown-divider
+              span.dropdown-item
+                a.btn.btn-primary.d-block(href='/descargar')
+                  i.fa.fa-download
+                  |  Descargar
+    main(role='main')
+      section.bg-gray200.pt-5.pb-5
+        .container
+          .row.justify-content-center
+            .col-md-7
+              article.card
+                #videocard
+                  img.card-img-top.mb-2(src=info.image alt=info.name)
+                .card-body
+                  h1.card-title.display-4
+                    | !{info.name}
+                  ul.ingredients
+                    each ingredient in info.ingredients
+                      li
+                        = ingredient.name
+                  //- small.d-block
+                  //-   a.btn.btn-sm.btn-gray200(href='#')
+                  //-     i.fa.fa-external-link
+                  //-     |  Visit Website
+                  //
+                    Begin Comments -replace demowebsite with your own id
+                    ==================================================
+                  #comments.mt-4
+                    #disqus_thread
+                    script(type='text/javascript').
+                      var disqus_shortname = 'demowebsite';
+                      var disqus_developer = 0;
+                      (function() {
+                      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+                      dsq.src = window.location.protocol + '//' + disqus_shortname + '.disqus.com/embed.js';
+                      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+                      })();
+                    noscript
+                      | Please enable JavaScript to view the 
+                      a(href='http://disqus.com/?ref_noscript') comments powered by Disqus.
+                  //
+                    End Comments
+                    ==================================================
+        .container-fluid.mt-5
+          .row
+            h5.font-weight-bold Recetas similares
+            .card-columns
+              each related in info.related
+                a(href=related.link)
+                  .card.card-pin
+                    img.card-img(src=related.image alt='Card image')
+                    .overlay
+                      h2.card-title.title !{related.name}
+
+    input#videolink(type="hidden", name="videolink", value=info.link)
+
+    script(src='/js/app.js')
+    script(src='/js/theme.js')
+    script(src='/js/video.js')
+    script(async='' defer='' src='//assets.pinterest.com/js/pinit.js')
+    script.
+      loadVideo()
+    footer.footer.pt-5.pb-5.text-center
+      .container
+        .socials-media
+          ul.list-unstyled
+            li.d-inline-block.ml-1.mr-1
+              a.text-dark(href='https://www.instagram.com/velavidaapp/', target='_blank')
+                i.fa.fa-instagram  velavidaapp
+        //
+          All the links in the footer should remain intact.
+          You may remove the links only if you donate:
+          https://www.wowthemes.net/freebies-license/
+        .Footer-box
+          .Footer-content
+            img.Footer-logo(src='/icons/logo.svg' alt='logo')
+            p.Footer-title Vela Vida
+          span info@velavida.co
+          br
+          img(src='/icons/flag_colombia.svg' width='18' height='12')
+          span  (300) 8442142
