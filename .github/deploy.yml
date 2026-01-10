@@ -1,0 +1,71 @@
+name: Deploy to Production
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment: production
+    
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v2
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: ${{ secrets.AWS_REGION }}
+    
+    # Backup actual version
+    # - name: Backup current Lambda
+    #   run: |
+    #     aws lambda get-function --function-name ${{ secrets.LAMBDA_FUNCTION_NAME }} \
+    #       --query 'Code.Location' --output text > lambda-backup-url.txt
+    #     echo "BACKUP_CREATED=true" >> $GITHUB_ENV
+    
+    # Deploy Lambda
+    - name: Deploy Lambda
+      run: |
+        cd backend
+        zip -r function.zip .
+        aws lambda update-function-code \
+          --function-name ${{ secrets.LAMBDA_FUNCTION_NAME }} \
+          --zip-file fileb://function.zip
+    
+    # Wait and test Lambda
+    # - name: Test Lambda
+    #   id: test_lambda
+    #   run: |
+    #     sleep 10
+    #     aws lambda invoke --function-name ${{ secrets.LAMBDA_FUNCTION_NAME }} \
+    #       --payload '{"test": true}' response.json
+    #     cat response.json
+    #     # Verificar que no haya error
+    #     if grep -q "errorMessage" response.json; then
+    #       echo "Lambda test failed"
+    #       exit 1
+    #     fi
+    
+    # Deploy S3
+    - name: Deploy to S3
+      run: |
+        aws s3 sync frontend/ s3://${{ secrets.S3_BUCKET_NAME }} --delete
+    
+    # Invalidate CloudFront
+    - name: Invalidate CloudFront
+      run: |
+        aws cloudfront create-invalidation \
+          --distribution-id ${{ secrets.CLOUDFRONT_DISTRIBUTION_ID }} \
+          --paths "/*"
+    
+    # Rollback on failure
+    - name: Rollback Lambda on failure
+      if: failure() && env.BACKUP_CREATED == 'true'
+      run: |
+        echo "Deployment failed, rolling back Lambda..."
+        # Aquí iría lógica de restore desde backup
+        # Por ahora solo notifica
+        echo "⚠️ Manual rollback required"
