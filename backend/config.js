@@ -45,4 +45,9 @@ module.exports = {
         },
         firebaseServiceAccount: JSON.parse(Buffer.from(process.env.VECCI_FIREBASE, 'base64').toString()),
     },
+    velavida: {
+        bases: {
+            images: 'https://s3.amazonaws.com/velavida-images/'
+        }
+    }
 }
