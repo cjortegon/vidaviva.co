@@ -101,8 +101,8 @@ app.get(['/receta/:recipe'], function(req, res) {
 function getRecipe(id) {
 	return new Promise((resolve, reject) => {
 		superagent
-		.post(baseUrl+'/graphql')
-		.send({query: `{ bases{images}, recipe(id: \"${id}\") {id,name,link,course,cover, ingredients{name,image}, related{id,name,cover,kind}  } }`}) // sends a JSON post body
+		.get('https://gq3ykajn8g.execute-api.us-east-1.amazonaws.com/prod/client/vidaviva/recipe')
+		.query({id: id})
 		.set('Authorization', 'a')
 		.set('accept', 'json')
 		.end((error, response) => {
@@ -126,21 +126,23 @@ const courses = {
 function buildRecipeInfo(data) {
 	const {bases,recipe} = data
 	const course = courses[recipe.course]
+	// const baseImage = bases.images || ''
+	const baseImage = '/'
 	return {
 		...recipe,
 		backLink: course ? '/'+course : '/',
-		image: `${bases.images}${recipe.cover}`,
+		image: `${baseImage}${recipe.cover}`,
 		ingredients: recipe.ingredients.map(ingredient => {
 			return {
 				...ingredient,
-				image: `${bases.images}${ingredient.image}`,
+				image: `${baseImage}${ingredient.image}`,
 			}
 		}),
 		related: recipe.related.map(related => {
 			return {
 				name: related.name,
 				link: `/receta/${related.name.toLowerCase().split(' ').join('-')}-${related.id}`,
-				image: `${bases.images}${related.cover}`,
+				image: `${baseImage}${related.cover}`,
 			}
 		}),
 	}
