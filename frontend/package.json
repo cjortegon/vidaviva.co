@@ -14,8 +14,5 @@
     "pg": "8.4.2",
     "pug": "^2.0.4",
     "superagent": "^6.1.0"
-  },
-  "devDependencies": {
-    "compression-webpack-plugin": "^3.1.0"
   }
 }

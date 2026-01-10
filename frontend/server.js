@@ -78,18 +78,6 @@ app.get('/contratos', (req, res) => {
 	})
 })
 
-let paths = [
-	'/admin',
-	'/admin/:a',
-	'/admin/:a/:b',
-	'/admin/:a/:b/:c',
-	'/admin/:a/:b/:c/:d',
-	'/admin/:a/:b/:c/:d/:e',
-]
-app.get(paths, function(req, res) {
-	webappRender(req, res)
-})
-
 app.get(['/receta/:recipe'], function(req, res) {
 	const parts = req.params.recipe.split('-')
 	const id = parts[parts.length-1]
@@ -168,12 +156,6 @@ app.get(fastPaths, function(req, res) {
 	fastRender(req, res, 'home')
 })
 
-function webappRender(req, res) {
-	res.render('webapp', {
-		og: default_og,
-		twitter: default_twitter,
-	})
-}
 function fastRender(req, res, view, info) {
 	const {og, twitter} = buildOpenGraphWithInfo(info)
 	res.render(view, {
