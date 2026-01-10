@@ -52,7 +52,7 @@ jobs:
     # Deploy S3
     - name: Deploy to S3
       run: |
-        aws s3 sync frontend/ s3://${{ secrets.S3_BUCKET_NAME }} --delete
+        aws s3 sync frontend/s3_bucket s3://${{ secrets.S3_BUCKET_NAME }} --delete
     
     # Invalidate CloudFront
     - name: Invalidate CloudFront
