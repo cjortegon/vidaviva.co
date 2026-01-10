@@ -20,6 +20,10 @@ const db = new DatabseConnection({
 
 const DEFAULT_OWNER = 'info@vidaviva.co'
 
+// Migration flags - set to false to skip a step
+const ENABLE_FOODS_MIGRATION = true
+const ENABLE_RECIPES_MIGRATION = true
+
 // ANSI color codes for console output
 const colors = {
     reset: '\x1b[0m',
@@ -39,6 +43,13 @@ function log(message, color = 'reset') {
 // ============================================
 
 async function migrateFoods() {
+    if(!ENABLE_FOODS_MIGRATION) {
+        log('\n========================================', 'yellow')
+        log('STEP 1: Foods migration SKIPPED (disabled)', 'yellow')
+        log('========================================\n', 'yellow')
+        return { success: true, inserted: 0, errors: 0, skipped: true }
+    }
+
     log('\n========================================', 'cyan')
     log('STEP 1: Migrating Foods + FoodTags -> foods', 'cyan')
     log('========================================\n', 'cyan')
@@ -56,7 +67,7 @@ async function migrateFoods() {
         // 1.2 Read all FoodTags records
         log('1.2 Reading FoodTags table...', 'blue')
         const tagsResult = await db.execute(
-            'SELECT id, tag FROM "FoodTags" ORDER BY id',
+            'SELECT food_id as id, tag FROM "FoodTags" ORDER BY id',
             []
         )
         const foodTags = tagsResult.rows
@@ -136,6 +147,13 @@ async function migrateFoods() {
 // ============================================
 
 async function migrateRecipes() {
+    if(!ENABLE_RECIPES_MIGRATION) {
+        log('\n========================================', 'yellow')
+        log('STEP 2: Recipes migration SKIPPED (disabled)', 'yellow')
+        log('========================================\n', 'yellow')
+        return { success: true, inserted: 0, errors: 0, skipped: true }
+    }
+
     log('\n========================================', 'cyan')
     log('STEP 2: Migrating Recipes + RecipeFoods -> recipes', 'cyan')
     log('========================================\n', 'cyan')
