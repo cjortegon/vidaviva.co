@@ -34,13 +34,13 @@ else
 fi
 
 # Generate static HTML files
-echo "🔨 Building static HTML files..."
-if [ -f "build-static.js" ]; then
-    node build-static.js
-    echo "   ✓ Static HTML files generated"
-else
-    echo "   ⚠️  Warning: build-static.js not found"
-fi
+# echo "🔨 Building static HTML files..."
+# if [ -f "build-static.js" ]; then
+#     node build-static.js
+#     echo "   ✓ Static HTML files generated"
+# else
+#     echo "   ⚠️  Warning: build-static.js not found"
+# fi
 
 # Copy all contents from html/ to s3_bucket/ (at the same level)
 echo "📋 Copying html/ contents to s3_bucket/..."
