@@ -1,0 +1,109 @@
+doctype html
+html(lang='en')
+  head
+    meta(charset='UTF-8')
+
+    meta(name="description", content="Come sano, vive mejor")
+    meta(name="keywords", content="entrena, salud, cocina, recetas, gym, gimnasios, deporte, cali, colombia")
+    meta(name="author", content="Vela Vida")
+    meta(name="copyright", content="Camilo Ortegón")
+    meta(name="application-name", content="VelaVida")
+
+    meta(property="og:title", content=og.title)
+    meta(property="og:site_name", content="VelaVida")
+    meta(property="og:type", content=og.type)
+    meta(property="og:image", content=og.image)
+    meta(property="og:url", content=og.url)
+    meta(property="og:description", content=og.description)
+    
+    meta(name="twitter:card", content=twitter.card)
+    meta(name="twitter:site", content=twitter.site)
+    meta(name="twitter:title", content=twitter.title)
+    meta(name="twitter:description", content=twitter.description)
+    meta(name="twitter:image", content=twitter.image)
+
+    title VelaVida | Descargar
+    //- link(href='https://fonts.googleapis.com/css?family=Montserrat:400,700', rel='stylesheet')
+    link(href='https://fonts.googleapis.com/css?family=Cormorant+Infant', rel='stylesheet')
+    link(href='https://fonts.googleapis.com/css?family=Quattrocento+Sans', rel='stylesheet')
+    link(rel='stylesheet', href='/css/mainStyles.css')
+
+    // Favicon
+    link(rel='apple-touch-icon', sizes='57x57', href='/favicon/apple-icon-57x57.png')
+    link(rel='apple-touch-icon', sizes='60x60', href='/favicon/apple-icon-60x60.png')
+    link(rel='apple-touch-icon', sizes='72x72', href='/favicon/apple-icon-72x72.png')
+    link(rel='apple-touch-icon', sizes='76x76', href='/favicon/apple-icon-76x76.png')
+    link(rel='apple-touch-icon', sizes='114x114', href='/favicon/apple-icon-114x114.png')
+    link(rel='apple-touch-icon', sizes='120x120', href='/favicon/apple-icon-120x120.png')
+    link(rel='apple-touch-icon', sizes='144x144', href='/favicon/apple-icon-144x144.png')
+    link(rel='apple-touch-icon', sizes='152x152', href='/favicon/apple-icon-152x152.png')
+    link(rel='apple-touch-icon', sizes='180x180', href='/favicon/apple-icon-180x180.png')
+    link(rel='icon', type='image/png', sizes='192x192', href='/favicon/android-icon-192x192.png')
+    link(rel='icon', type='image/png', sizes='32x32', href='/favicon/favicon-32x32.png')
+    link(rel='icon', type='image/png', sizes='96x96', href='/favicon/favicon-96x96.png')
+    link(rel='icon', type='image/png', sizes='16x16', href='/favicon/favicon-16x16.png')
+    link(rel='manifest', href='/manifest.json')
+    meta(name='msapplication-TileColor', content='#F90A58')
+    meta(name='msapplication-TileImage', content='/favicon/ms-icon-144x144.png')
+    meta(name='theme-color', content='#F90A58')
+
+    script.
+      !function(f,b,e,v,n,t,s)
+      {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+      n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+      if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+      n.queue=[];t=b.createElement(e);t.async=!0;
+      t.src=v;s=b.getElementsByTagName(e)[0];
+      s.parentNode.insertBefore(t,s)}(window, document,'script',
+      'https://connect.facebook.net/en_US/fbevents.js');
+      setTimeout(function() {
+        const pixel = document.getElementById('pixel_id').value;
+        console.log('pixel', pixel);
+        fbq('init', pixel);
+        fbq('track', 'PageView');
+      }, 1);
+    noscript
+      img(height='1', width='1', style='display:none', src=`https://www.facebook.com/tr?id=${facebook.pixel}&ev=PageView&noscript=1`)
+
+  body
+    #app.main-app(style='background: #eee; text-align: center;')
+      input#pixel_id(type="hidden", name="pixel", value=facebook.pixel)
+      input#store_android(type="hidden", name="android", value=stores.android)
+      input#store_ios(type="hidden", name="ios", value=stores.ios)
+      img(src='/icons/logo-name.svg', style='height: 22vh; margin: 10vh 10vh;')
+      #stores(style='height: 200px; display: flex; justify-content: center;')
+        div(style='height: 100%;')
+          a(href=stores.android)
+            img(src='/store-badges/google-play-badge.png', style='height: 10vh')
+        div(style='height: 100%; padding-top: 1.5vh;')
+          a(href=stores.ios)
+            img(src='/store-badges/app-store-badge.svg', style='height: 7vh')
+
+      p(style='font-size:2vh; margin-top:3vh;') @2020 Vela Vida SAS
+
+    script.
+      const os = getMobileOperatingSystem();
+      const stores = {
+        android: document.getElementById('store_android').value,
+        ios: document.getElementById('store_ios').value,
+      }
+      console.log('stores', stores)
+      const link = stores[os];
+      if(link) {
+        window.location.replace(link);
+      }
+      function getMobileOperatingSystem() {
+        var userAgent = navigator.userAgent || navigator.vendor || window.opera;
+            // Windows Phone must come first because its UA also contains "Android"
+          if (/windows phone/i.test(userAgent)) {
+              return "wphone";
+          }
+          if (/android/i.test(userAgent)) {
+              return "android";
+          }
+          // iOS detection from: http://stackoverflow.com/a/9039885/177710
+          if (/iPad|iPhone|iPod/.test(userAgent) && !window.MSStream) {
+              return "ios";
+          }
+          return "unknown";
+        }
