@@ -11,7 +11,23 @@ jobs:
     
     steps:
     - uses: actions/checkout@v3
-    
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '18'
+
+    - name: Install dependencies
+      run: |
+        cd frontend
+        npm install
+
+    - name: Prepare S3 files
+      run: |
+        cd frontend
+        chmod +x prepare-s3.sh
+        ./prepare-s3.sh
+
     - name: Configure AWS credentials
       uses: aws-actions/configure-aws-credentials@v2
       with:
