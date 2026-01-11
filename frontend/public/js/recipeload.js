@@ -6,7 +6,7 @@ function getRecipeIdFromUrl() {
 
 // Get recipe data from API
 function getRecipe(id) {
-    return fetch('https://gq3ykajn8g.execute-api.us-east-1.amazonaws.com/prod/client/vidavida/recipe?id=' + id, {
+    return fetch('https://gq3ykajn8g.execute-api.us-east-1.amazonaws.com/prod/client/vidaviva/recipe?id=' + id, {
         headers: {
             'Authorization': 'a',
             'Accept': 'application/json'
@@ -61,13 +61,6 @@ function injectRecipeData(info) {
         titleElement.innerHTML = info.name;
     }
 
-    // Update main image
-    const imageElement = document.querySelector('.card-img-top');
-    if (imageElement) {
-        imageElement.src = info.image;
-        imageElement.alt = info.name;
-    }
-
     // Update ingredients
     const ingredientsContainer = document.querySelector('.ingredients');
     if (ingredientsContainer && info.ingredients) {
@@ -99,11 +92,9 @@ function injectRecipeData(info) {
 
     // Update page title
     document.title = 'Vela Vida | ' + info.name;
-
-    // Update Open Graph meta tags
-    updateMetaTag('og:title', 'Vela Vida | ' + info.name);
-    updateMetaTag('og:image', info.image);
-    updateMetaTag('og:description', info.name + ' una receta de Vela Vida, conoce más descargando nuestra App.');
+    
+    // Load video
+    loadVideo();
 }
 
 function updateMetaTag(property, content) {
@@ -119,15 +110,15 @@ function updateMetaTag(property, content) {
 
     if (!recipeId) {
         console.error('No recipe ID found in URL');
-        // window.location.href = '/';
+        window.location.href = '/';
         return;
     }
 
     getRecipe(recipeId)
         .then(data => {
             if (!data || !data.recipe) {
-                console.error('Recipe not found');
-                window.location.href = '/';
+                console.error('[Error] Recipe not found');
+                // window.location.href = '/';
                 return;
             }
 
@@ -137,6 +128,6 @@ function updateMetaTag(property, content) {
         })
         .catch(error => {
             console.error('Error loading recipe:', error);
-            window.location.href = '/';
+            // window.location.href = '/';
         });
 })();
