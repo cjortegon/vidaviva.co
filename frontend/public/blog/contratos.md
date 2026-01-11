@@ -1,0 +1,15 @@
+# VELAVIDA CONTRATOS
+
+Fecha del documento: Sep 2, 2020
+
+## Manejo de bases de Datos.
+
+Debe entenderse por base de datos, el conjunto organizado de datos personales que pueda ser objeto de cualquier operación o conjunto de operaciones: recolección, almacenamiento, uso, circulación o supresión en los términos de las leyes 1266 de 2008, 1581 de 2012 y su Decreto reglamentario 1377 de 2013 y el Decreto 1074 de 2015 en lo que regule esta materia. En caso de reclamaciones por el uso no autorizado de los datos personales, la Parte incumplida deberá mantener indemne a la Parte cumplida ante cualquier tipo de reclamación o sanción por parte del propietario de los datos y/o de la autoridad administrativa y/o judicial competente, haciéndose cargo de todos los gastos y honorarios que se causen, así como del pago de los montos de las sanciones y multas que deban asumirse.
+
+## Declaración de origen de fondos
+
+Las Partes declaran que sus ingresos provienen de actividades lícitas, que no se encuentran incluidas en listas para el control de lavado de activos y financiación del terrorismo, administradas por cualquier autoridad nacional o extranjera, y que en consecuencia se obligan a responder por todos los perjuicios que llegase causar como consecuencia de esta afirmación. Conforme a lo anterior las Partes podrán terminar el presente Acuerdo de manera inmediata en caso de que la otra Parte sea incluida en las listas públicas relacionadas con el tema de lavado de activos y financiación del terrorismo.
+
+## Ética en los negocios y anticorrupción
+
+Las Partes se comprometen a implementar mecanismos de control interno con el fin de evitar que se presenten actos de corrupción en las negociaciones que se lleven a cabo. Las Partes declaran que tanto esta, como sus funcionarios, empleados, directivos, o subcontratistas cumplen las normas anticorrupción, incluyendo, pero sin limitarse a las contenidas en la Ley 1474 de 2011, la ley 1778 de 2016, el Código Penal de Colombia, o aquellas que la modifiquen, subroguen, reglamenten o desarrollen, así como aquellas regulaciones nacionales e internacionales relativas a la prevención del fraude, el soborno, la corrupción, el lavado de dinero y el terrorismo. Igualmente, las Partes declaran y garantizan que ni ellas, ni sus funcionarios, empleados, directivos, o subcontratistas son objeto de investigaciones, acusaciones o procesos relativos a la violación de normas anticorrupción y que tampoco han sido objeto de sanciones penales, disciplinarias o contractuales derivadas de la violación de tal regulación. Las Partes se obligan a cumplir las leyes anticorrupción y declaran que cualquier incumplimiento constituye una violación al presente Acuerdo, que da derecho a la otra Parte de terminarlo de manera inmediata. Igualmente, las Partes se obligan a notificar a la otra Parte, cualquier notificación asociada a una investigación, procedimiento, sanción o similar, iniciado en su contra o en contra de cualquiera de sus funcionarios, empleados, directivos, o subcontratistas, dentro de las veinticuatro (24) horas siguientes a la fecha en que tenga conocimiento de la notificación de la investigación.
