@@ -39,7 +39,7 @@ console.log('✓ home.html created');
 // Build video.html with placeholder data
 console.log('Building video.html...');
 const videoTemplate = pug.compileFile(path.join(__dirname, 'views/video.pug'));
-const videoHtml = videoTemplate({
+let videoHtml = videoTemplate({
     og: default_og,
     twitter: default_twitter,
     query: {},
@@ -51,6 +51,16 @@ const videoHtml = videoTemplate({
         related: []
     }
 });
+
+// Inject recipeload.js AFTER video.js
+videoHtml = videoHtml.replace(
+    '<script src="/js/video.js"></script>',
+    '<script src="/js/video.js"></script><script src="/js/recipeload.js"></script>'
+);
+
+// Remove the inline loadVideo() call since recipeload.js will call it
+videoHtml = videoHtml.replace('<script>loadVideo()</script>', '');
+
 fs.writeFileSync(path.join(htmlDir, 'video.html'), videoHtml);
 console.log('✓ video.html created');
 

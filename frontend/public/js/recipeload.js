@@ -16,21 +16,20 @@ function getRecipe(id) {
     .then(result => result.data)
 }
 
-// Course mappings
-const courses = {
-    breakfast: 'desayunos',
-    main_course: 'principales',
-    fast_food: 'comidarapida',
-    salad: 'ensaladas',
-    dessert: 'postres',
-    cocktail: 'cocteleria',
-    barista: 'barista',
-}
-
 // Build recipe info for rendering
 function buildRecipeInfo(data) {
+
+    const theCourses = {
+        breakfast: 'desayunos',
+        main_course: 'principales',
+        fast_food: 'comidarapida',
+        salad: 'ensaladas',
+        dessert: 'postres',
+        cocktail: 'cocteleria',
+        barista: 'barista',
+    }
     const {bases, recipe} = data;
-    const course = courses[recipe.course];
+    const course = theCourses[recipe.course];
     const baseImage = '/';
 
     return {
