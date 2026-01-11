@@ -78,6 +78,11 @@ app.get('/contratos', (req, res) => {
 	})
 })
 
+// Static HTML routes
+app.get(['/static/:html'], function(req, res) {
+	res.sendFile(path.join(__dirname, 'html', req.params.html+'.html'))
+})
+
 app.get(['/receta/:recipe'], function(req, res) {
 	const parts = req.params.recipe.split('-')
 	const id = parts[parts.length-1]
