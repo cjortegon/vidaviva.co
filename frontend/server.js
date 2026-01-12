@@ -1,4 +1,5 @@
-var dev = false
+var dev = true
+const port = 3004
 
 // Libraries
 const fs = require('fs')
@@ -20,7 +21,13 @@ app.use(express.static('public'))
 app.use(bodyParser.json())
 app.use(cors())
 
-const baseUrl = 'https://3bvjulkoul.execute-api.us-east-1.amazonaws.com/prod'
+function getBackendUrl() {
+	if(dev) {
+		return 'http://localhost:8000'
+	} else {
+		return 'https://gq3ykajn8g.execute-api.us-east-1.amazonaws.com/prod'
+	}
+}
 
 // Facebook
 const pixels = require('./pixels')
@@ -105,8 +112,10 @@ app.get(['/receta/:recipe'], function(req, res) {
 })
 function getRecipe(id) {
 	return new Promise((resolve, reject) => {
+		const fullUrl = getBackendUrl() + '/client/vidaviva/recipe'
+		console.log('getRecipe -> ', fullUrl)
 		superagent
-		.get('https://gq3ykajn8g.execute-api.us-east-1.amazonaws.com/prod/client/vidaviva/recipe')
+		.get(fullUrl)
 		.query({id: id})
 		.set('Authorization', 'a')
 		.set('accept', 'json')
@@ -198,20 +207,7 @@ function buildOpenGraphWithInfo(info) {
 	}
 }
 
-const port = 3004
-if(!dev) {
-	app.listen(port, function(err) {
-		if(err) return console.log('Hubo un error'), process.exit(1)
-		console.log('VelaVida-landing escuchando en el puerto '+port)
-	})
-} else {
-	// *** HTTPS localhost ***
-	const certOptions = {
-		key: fs.readFileSync(path.resolve('ssl/cert/server.key')),
-		cert: fs.readFileSync(path.resolve('ssl/cert/server.crt'))
-	}
-	var server = https.createServer(certOptions, app).listen(port, function(err) {
-		if(err) return console.log('Hubo un error'), process.exit(1)
-		console.log('VelaVida-TEST escuchando en https://localhost:'+port)
-	})
-}
+app.listen(port, function(err) {
+	if(err) return console.log('Hubo un error'), process.exit(1)
+	console.log('VelaVida-landing escuchando en el puerto '+port)
+})

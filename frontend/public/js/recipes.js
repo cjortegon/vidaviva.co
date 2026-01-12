@@ -11,7 +11,8 @@ const courses = {
     cocteleria: 'cocktail',
     barista: 'barista',
 }
-const baseUrl = 'https://gq3ykajn8g.execute-api.us-east-1.amazonaws.com/prod/client/vidaviva'
+// Use API_BASE_URL from config.js if available, otherwise fallback to production
+const baseUrl = (window.API_BASE_URL || 'https://gq3ykajn8g.execute-api.us-east-1.amazonaws.com/prod') + '/client/vidaviva'
 let baseImage = ''
 
 function loadRecipes() {
