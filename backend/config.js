@@ -2,8 +2,8 @@
 
 module.exports = {
     defaultClient: {
-        app_id: 'vecci',
-        gateway: '449gwidd80',
+        app_id: 'velavida',
+        gateway: 'gq3ykajn8g',
     },
     db: {
         host: process.env.DATABASE_APPS1_ENDPOINT,
@@ -11,21 +11,10 @@ module.exports = {
         password: process.env.DATABASE_APPS1_PASSWORD,
         database: 'kobapp'
     },
-    aws: {
-        region: 'us-east-1',
-        bucket: 'kobapp.clients',
-        sqs_queue: 'https://sqs.us-east-1.amazonaws.com/487401175418/kobapp_queue'
-    },
     ai: {
         dataOwner: 'cjortegon@gmail.com',
         openAI: process.env.OPENAI_KEY,
-        chatGPTModel: 'gpt-4o', //'gpt-4o-mini', 'o3-mini',
-    },
-    telegram: {
-        token: process.env.KOBAPP_TELEGRAM_TOKEN,
-    },
-    resend: {
-        vecciToken: process.env.RESEND_VECCI,
+        chatGPTModel: 'gpt-4o',
     },
     velavida: {
         bases: {
