@@ -33,14 +33,22 @@ jobs:
     #       --query 'Code.Location' --output text > lambda-backup-url.txt
     #     echo "BACKUP_CREATED=true" >> $GITHUB_ENV
     
+    # Backend setup
+    - name: Prepare dependencies
+      run: |
+        cd backend
+        npm uninstall aws-sdk
+        npm install --production
+        cd ..
+
     # Deploy Lambda
-    # - name: Deploy Lambda
-    #   run: |
-    #     cd backend
-    #     zip -r function.zip .
-    #     aws lambda update-function-code \
-    #       --function-name ${{ secrets.LAMBDA_FUNCTION_NAME }} \
-    #       --zip-file fileb://function.zip
+    - name: Deploy Lambda
+      run: |
+        cd backend
+         zip -r function.zip config.js extras/ index.js node_modules/ package-lock.json package.json vidavivamain.js
+        aws lambda update-function-code \
+          --function-name ${{ secrets.LAMBDA_FUNCTION_NAME }} \
+          --zip-file fileb://function.zip
     
     # Wait and test Lambda
     # - name: Test Lambda
