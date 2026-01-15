@@ -128,10 +128,13 @@ exports.searchRecipes = async (payload) => {
     const nameParams = searchTerms.map(term => `%${term}%`)
 
     const nameResult = await execute(
-        `SELECT DISTINCT id, data
+        `SELECT id, data
          FROM recipes
-         WHERE data->>'lang' = 'es'
-           AND (${nameConditions})`,
+         WHERE id IN (
+           SELECT DISTINCT id FROM recipes
+           WHERE data->>'lang' = 'es'
+             AND (${nameConditions})
+         )`,
         nameParams
     )
 
@@ -139,10 +142,13 @@ exports.searchRecipes = async (payload) => {
 
     // Step 3: Search by recipe tags
     const tagsResult = await execute(
-        `SELECT DISTINCT id, data
+        `SELECT id, data
          FROM recipes
-         WHERE data->>'lang' = 'es'
-           AND (${nameConditions.replace(/data->>'name'/g, "data->>'tags'")})`,
+         WHERE id IN (
+           SELECT DISTINCT id FROM recipes
+           WHERE data->>'lang' = 'es'
+             AND (${nameConditions.replace(/data->>'name'/g, "data->>'tags'")})
+         )`,
         nameParams
     )
 
@@ -163,10 +169,13 @@ exports.searchRecipes = async (payload) => {
     ).join(' OR ')
 
     const foodsResult = await execute(
-        `SELECT DISTINCT data->>'id' as food_id
+        `SELECT data->>'id' as food_id
          FROM foods
-         WHERE data->>'lang' = 'es'
-           AND ((${foodNameConditions}) OR (${foodTagConditions}))`,
+         WHERE id IN (
+           SELECT DISTINCT id FROM foods
+           WHERE data->>'lang' = 'es'
+             AND ((${foodNameConditions}) OR (${foodTagConditions}))
+         )`,
         nameParams
     )
 
@@ -174,9 +183,12 @@ exports.searchRecipes = async (payload) => {
     if (foodsResult.rows.length > 0) {
         const foodIds = foodsResult.rows.map(row => row.food_id)
         const recipesWithIngredientsResult = await execute(
-            `SELECT DISTINCT id, data
+            `SELECT id, data
              FROM recipes
-             WHERE data->'food_ids' ?| $1`,
+             WHERE id IN (
+               SELECT DISTINCT id FROM recipes
+               WHERE data->'food_ids' ?| $1
+             )`,
             [foodIds]
         )
 
