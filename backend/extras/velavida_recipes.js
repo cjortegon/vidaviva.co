@@ -163,7 +163,7 @@ exports.searchRecipes = async (payload) => {
     const foodTagConditions = searchTerms.map((_, index) =>
         `EXISTS (
             SELECT 1
-            FROM jsonb_array_elements_text(data->'tags') AS tag
+            FROM json_array_elements_text(data->'tags') AS tag
             WHERE LOWER(tag) LIKE $${index + 1}
         )`
     ).join(' OR ')
@@ -187,7 +187,11 @@ exports.searchRecipes = async (payload) => {
              FROM recipes
              WHERE id IN (
                SELECT DISTINCT id FROM recipes
-               WHERE data->'food_ids' ?| $1
+               WHERE EXISTS (
+                 SELECT 1
+                 FROM json_array_elements_text(data->'food_ids') AS food_id
+                 WHERE food_id = ANY($1::text[])
+               )
              )`,
             [foodIds]
         )
