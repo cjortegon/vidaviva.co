@@ -51,7 +51,54 @@ WHERE id IN (
 - The outer query retrieves both `id` and `data` for the matched IDs
 - No `DISTINCT` is applied to the `json` column
 
-### 2. Comparing ID with JSON properties
+### 2. Using JSONB functions on JSON columns
+
+**Error:**
+```
+ERROR: function jsonb_array_elements_text(json) does not exist
+ERROR: operator does not exist: json ?| unknown
+```
+
+**Problem:**
+The `data` column is of type `json`, not `jsonb`. JSONB-specific functions and operators (like `jsonb_array_elements_text()`, `?|`, `?&`, `@>`, etc.) cannot be used on `json` type columns.
+
+**Solution:**
+Use JSON equivalents for array operations:
+
+```sql
+-- ❌ WRONG - JSONB functions on JSON column
+SELECT * FROM recipes
+WHERE data->'food_ids' ?| $1
+
+SELECT * FROM foods
+WHERE EXISTS (
+  SELECT 1 FROM jsonb_array_elements_text(data->'tags') AS tag
+  WHERE LOWER(tag) LIKE '%keyword%'
+)
+
+-- ✅ CORRECT - JSON functions
+SELECT * FROM recipes
+WHERE EXISTS (
+  SELECT 1
+  FROM json_array_elements_text(data->'food_ids') AS food_id
+  WHERE food_id = ANY($1::text[])
+)
+
+SELECT * FROM foods
+WHERE EXISTS (
+  SELECT 1 FROM json_array_elements_text(data->'tags') AS tag
+  WHERE LOWER(tag) LIKE '%keyword%'
+)
+```
+
+**Common JSONB to JSON function mappings:**
+- `jsonb_array_elements_text()` → `json_array_elements_text()`
+- `jsonb_array_elements()` → `json_array_elements()`
+- `?|` (any key exists) → Use `EXISTS` with `json_array_elements_text()`
+- `?&` (all keys exist) → Use multiple `EXISTS` checks
+- `@>` (contains) → Use `EXISTS` with element extraction
+
+### 3. Comparing ID with JSON properties
 
 **Error:**
 ```
@@ -125,9 +172,14 @@ WHERE id = ANY($1)
 ### Pattern 3: JSON array membership check
 ```sql
 -- Check if JSON array contains any of the specified values
+-- Note: Since data is json (not jsonb), we cannot use ?| operator
 SELECT id, data
 FROM recipes
-WHERE data->'food_ids' ?| $1
+WHERE EXISTS (
+  SELECT 1
+  FROM json_array_elements_text(data->'food_ids') AS food_id
+  WHERE food_id = ANY($1::text[])
+)
 -- $1 should be an array of strings
 ```
 
@@ -151,13 +203,18 @@ WHERE data->>'lang' = 'es'
 3. **JSON vs JSONB**: This project uses `json` type, not `jsonb`. Be aware of the differences:
    - `json` stores exact text representation
    - `jsonb` stores parsed binary format (more efficient for queries but not used here)
+   - **CRITICAL**: JSONB functions and operators (`jsonb_array_elements_text()`, `?|`, `?&`, `@>`) DO NOT work with `json` type
+   - Always use `json_array_elements_text()` instead of `jsonb_array_elements_text()`
+   - Always use `EXISTS` with element extraction instead of JSONB operators
 4. **Language filtering**: Always filter by language when applicable: `data->>'lang' = 'es'`
 5. **Type casting is explicit**: PostgreSQL will not automatically cast between types when working with JSON-extracted values
 
 ## Common Mistakes to Avoid
 
-1. L `SELECT DISTINCT id, data` - Cannot use DISTINCT with json columns
-2. L `WHERE id = data->>'id'` - Type mismatch (bigint vs text)
-3. L `WHERE id = ANY($1)` when $1 contains strings - Use `id::text = ANY($1::text[])`
-4. L Using JSON operators on `json` type without consideration for performance
-5. L Forgetting to filter by language when querying multilingual data
+1. ❌ `SELECT DISTINCT id, data` - Cannot use DISTINCT with json columns
+2. ❌ `WHERE id = data->>'id'` - Type mismatch (bigint vs text)
+3. ❌ `WHERE id = ANY($1)` when $1 contains strings - Use `id::text = ANY($1::text[])`
+4. ❌ `WHERE data->'array' ?| $1` - JSONB operators don't work on `json` type
+5. ❌ `jsonb_array_elements_text(data->'array')` - Use `json_array_elements_text()` instead
+6. ❌ Using JSONB operators (`?|`, `?&`, `@>`) on `json` type columns
+7. ❌ Forgetting to filter by language when querying multilingual data
