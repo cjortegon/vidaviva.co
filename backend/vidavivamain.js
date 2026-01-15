@@ -40,6 +40,8 @@ exports.get = async (resource, payload, user) => {
     switch(resource) {
         case 'client/vidaviva/recipes/random':
             return await recipes.loadRecipes(payload)
+        case 'client/vidaviva/recipes/search':
+            return await recipes.searchRecipes(payload)
         case 'client/vidaviva/recipe':
             return await recipes.getRecipeDetails(payload)
         case 'client/vidaviva/profile':
