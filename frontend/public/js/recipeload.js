@@ -108,8 +108,8 @@ function updateMetaTag(property, content) {
     const recipeId = getRecipeIdFromUrl();
 
     if (!recipeId) {
-        console.error('No recipe ID found in URL');
-        window.location.href = '/';
+        alert('No recipe ID found in URL');
+        // window.location.href = '/';
         return;
     }
 
