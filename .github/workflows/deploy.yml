@@ -76,6 +76,16 @@ jobs:
           --distribution-id ${{ secrets.CLOUDFRONT_DISTRIBUTION_ID }} \
           --paths "/*"
     
+    # Update CloudFront Function
+    - name: Deploy CloudFront Function
+      run: |
+        ETAG=$(aws cloudfront describe-function --name ${{ secrets.CF_FUNCTION_NAME }} --query 'ETag' --output text)
+        aws cloudfront update-function \
+          --name ${{ secrets.CF_FUNCTION_NAME }} \
+          --function-code fileb://frontend/CloudFront/VidaRecetas.js \
+          --function-config Comment="Auto-deploy",Runtime="cloudfront-js-2.0" \
+          --if-match $ETAG
+    
     # Rollback on failure
     # - name: Rollback Lambda on failure
     #   if: failure() && env.BACKUP_CREATED == 'true'
