@@ -1,10 +1,14 @@
+// Use API_BASE_URL from config.js if available, otherwise fallback to production
+const baseUrl = (window.API_BASE_URL || 'https://gq3ykajn8g.execute-api.us-east-1.amazonaws.com/prod') + '/client/vidavida'
+
 // Search recipes via API
 function searchRecipes(searchTerm) {
+    alert('k>> Searching for: ' + searchTerm);
     if (!searchTerm || searchTerm.trim().length === 0) {
         return Promise.resolve([]);
     }
 
-    return fetch('https://gq3ykajn8g.execute-api.us-east-1.amazonaws.com/prod/client/vidaviva/recipes/search?s=' + encodeURIComponent(searchTerm), {
+    return fetch(baseUrl + '/recipes/search?s=' + encodeURIComponent(searchTerm), {
         headers: {
             'Authorization': 'a',
             'Accept': 'application/json'
