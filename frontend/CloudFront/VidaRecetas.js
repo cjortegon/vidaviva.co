@@ -17,7 +17,14 @@ function handler(event) {
     }
     
     if (normalizedUri.startsWith('/receta/')) {
-        request.uri = '/video.html';
+        // Extract ID from URL pattern: /receta/bandeja-paisa-84 -> 84
+        var match = normalizedUri.match(/\/receta\/.*-(\d+)$/);
+        if (match && match[1]) {
+            request.uri = '/video.html';
+            request.querystring = 'id=' + match[1];
+        } else {
+            request.uri = '/video.html';
+        }
         return request;
     }
 
