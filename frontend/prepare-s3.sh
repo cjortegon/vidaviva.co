@@ -33,6 +33,11 @@ else
     echo "   ⚠️  Warning: public/ directory not found"
 fi
 
+# -------------------------------------------------
+# Do not uncomment the static HTML generation step because this requires pug dependency to be installed.
+# If you need to generate static HTML files, ensure pug is installed and uncomment the following section.
+# -------------------------------------------------
+
 # Generate static HTML files
 # echo "🔨 Building static HTML files..."
 # if [ -f "build-static.js" ]; then
