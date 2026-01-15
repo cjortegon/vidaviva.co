@@ -1,7 +1,20 @@
-// Get recipe ID from URL query params
+// Get recipe ID from URL query params or pathname
 function getRecipeIdFromUrl() {
+    // Try query string first
     const urlParams = new URLSearchParams(window.location.search);
-    return urlParams.get('id');
+    const queryId = urlParams.get('id');
+    if (queryId) {
+        return queryId;
+    }
+
+    // Try to extract from pathname: /receta/nombre-del-plato-123
+    const pathname = window.location.pathname;
+    const match = pathname.match(/\/receta\/.*-(\d+)$/);
+    if (match && match[1]) {
+        return match[1];
+    }
+
+    return null;
 }
 
 // Get recipe data from API
@@ -108,8 +121,8 @@ function updateMetaTag(property, content) {
     const recipeId = getRecipeIdFromUrl();
 
     if (!recipeId) {
-        alert('No recipe ID found in URL');
-        // window.location.href = '/';
+        // alert('No recipe ID found in URL');
+        window.location.href = '/';
         return;
     }
 
