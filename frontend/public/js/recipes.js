@@ -17,8 +17,15 @@ let baseImage = ''
 
 function loadRecipes() {
     const collection = document.getElementById('cards-collection');
+    const searchTerm = getSearch();
 
-    fetch(baseUrl + '/recipes/random', {
+    // Determine which endpoint to use based on search parameter
+    let endpoint = '/recipes/random';
+    if (searchTerm) {
+        endpoint = '/recipes/search?s=' + encodeURIComponent(searchTerm);
+    }
+
+    fetch(baseUrl + endpoint, {
             headers: {
                 'Authorization': 'a'
             }
@@ -27,12 +34,18 @@ function loadRecipes() {
         .then(json => {
             const data = json.data
             console.log(JSON.stringify(json))
-            const recipes = data.randomRecipes || []
+            // For search results, data is an array directly, for random it's nested
+            const recipes = Array.isArray(data) ? data : (data.randomRecipes || [])
             // baseImage = data.bases.images || ''
             baseImage = '/'
-            collection.innerHTML = recipes
-                .filter(function(recipe){return recipe.cover && recipe.cover.length > 0})
-                .map(buildCard).join('')
+
+            if (recipes.length === 0 && searchTerm) {
+                collection.innerHTML = '<div class="col-12 text-center mt-5"><h3>No se encontraron recetas para "' + searchTerm + '"</h3></div>';
+            } else {
+                collection.innerHTML = recipes
+                    .filter(function(recipe){return recipe.cover && recipe.cover.length > 0})
+                    .map(buildCard).join('')
+            }
         })
         .catch(error => {
             console.log('error', error)

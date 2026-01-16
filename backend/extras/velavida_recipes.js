@@ -102,3 +102,131 @@ exports.getRecipeDetails = async (data) => {
         }
     }
 }
+
+exports.searchRecipes = async (payload) => {
+    const searchString = payload?.s || ''
+
+    // Return empty results if search is empty
+    if (!searchString || searchString.trim().length === 0) {
+        return {
+            "data": []
+        }
+    }
+
+    // Step 1: Parse search string into keywords
+    const searchTerms = searchString.toLowerCase().split(' ').filter(term => term.length > 0)
+
+    // Use a Set to track unique recipe IDs
+    const recipeIds = new Set()
+
+    // Step 2: Search by recipe name
+    // Build OR conditions for each search term
+    const nameConditions = searchTerms.map((_, index) =>
+        `LOWER(data->>'name') LIKE $${index + 1}`
+    ).join(' OR ')
+
+    const nameParams = searchTerms.map(term => `%${term}%`)
+
+    const nameResult = await execute(
+        `SELECT id, data
+         FROM recipes
+         WHERE id IN (
+           SELECT DISTINCT id FROM recipes
+           WHERE data->>'lang' = 'es'
+             AND (${nameConditions})
+         )`,
+        nameParams
+    )
+
+    nameResult.rows.forEach(row => recipeIds.add(row.id))
+
+    // Step 3: Search by recipe tags
+    const tagsResult = await execute(
+        `SELECT id, data
+         FROM recipes
+         WHERE id IN (
+           SELECT DISTINCT id FROM recipes
+           WHERE data->>'lang' = 'es'
+             AND (${nameConditions.replace(/data->>'name'/g, "data->>'tags'")})
+         )`,
+        nameParams
+    )
+
+    tagsResult.rows.forEach(row => recipeIds.add(row.id))
+
+    // Step 4: Search by ingredient names and synonyms
+    // 4a. Find matching food IDs
+    const foodNameConditions = searchTerms.map((_, index) =>
+        `LOWER(data->>'name') LIKE $${index + 1}`
+    ).join(' OR ')
+
+    const foodTagConditions = searchTerms.map((_, index) =>
+        `EXISTS (
+            SELECT 1
+            FROM json_array_elements_text(data->'tags') AS tag
+            WHERE LOWER(tag) LIKE $${index + 1}
+        )`
+    ).join(' OR ')
+
+    const foodsResult = await execute(
+        `SELECT data->>'id' as food_id
+         FROM foods
+         WHERE id IN (
+           SELECT DISTINCT id FROM foods
+           WHERE data->>'lang' = 'es'
+             AND ((${foodNameConditions}) OR (${foodTagConditions}))
+         )`,
+        nameParams
+    )
+
+    // 4b. Find recipes containing those food IDs
+    if (foodsResult.rows.length > 0) {
+        const foodIds = foodsResult.rows.map(row => row.food_id)
+        const recipesWithIngredientsResult = await execute(
+            `SELECT id, data
+             FROM recipes
+             WHERE id IN (
+               SELECT DISTINCT id FROM recipes
+               WHERE EXISTS (
+                 SELECT 1
+                 FROM json_array_elements_text(data->'food_ids') AS food_id
+                 WHERE food_id = ANY($1::text[])
+               )
+             )`,
+            [foodIds]
+        )
+
+        recipesWithIngredientsResult.rows.forEach(row => recipeIds.add(row.id))
+    }
+
+    // Step 5: Get full recipe data for all matched IDs
+    if (recipeIds.size === 0) {
+        return {
+            "data": []
+        }
+    }
+
+    const finalResult = await execute(
+        `SELECT id, data
+         FROM recipes
+         WHERE id = ANY($1)`,
+        [Array.from(recipeIds)]
+    )
+
+    // Format response
+    const recipes = finalResult.rows.map(row => ({
+        id: row.id,
+        name: row.data.name,
+        link: row.data.link,
+        course: row.data.course,
+        difficulty: row.data.difficulty,
+        cover: row.data.cover,
+        tags: row.data.tags,
+        lang: row.data.lang,
+        food_ids: row.data.food_ids
+    }))
+
+    return {
+        "data": recipes
+    }
+}
