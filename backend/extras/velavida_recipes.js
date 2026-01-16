@@ -115,11 +115,77 @@ exports.searchRecipes = async (payload) => {
 
     // Step 1: Parse search string into keywords
     const searchTerms = searchString.toLowerCase().split(' ').filter(term => term.length > 0)
+    const fullSearchTerm = searchTerms.join(' ')
 
-    // Use a Set to track unique recipe IDs
-    const recipeIds = new Set()
+    // Use a Map to track unique recipe IDs with their scores
+    // Map<id, {data: object, score: number}>
+    const recipeScores = new Map()
 
-    // Step 2: Search by recipe name
+    /**
+     * Helper function to add or update recipe score
+     * @param {number} id - Recipe ID
+     * @param {object} data - Recipe data
+     * @param {number} points - Points to add
+     */
+    const addScore = (id, data, points) => {
+        if (recipeScores.has(id)) {
+            recipeScores.get(id).score += points
+        } else {
+            recipeScores.set(id, { data, score: points })
+        }
+    }
+
+    /**
+     * Calculate match score based on match quality
+     * @param {string} text - Text to search in
+     * @param {string[]} terms - Search terms
+     * @param {string} fullTerm - Full search term
+     * @returns {number} - Score
+     */
+    const calculateMatchScore = (text, terms, fullTerm) => {
+        const lowerText = text.toLowerCase()
+        let score = 0
+
+        // Exact match: 100 points
+        if (lowerText === fullTerm) {
+            return 100
+        }
+
+        // Starts with full search term: 70 points
+        if (lowerText.startsWith(fullTerm)) {
+            return 70
+        }
+
+        // Contains full search term: 50 points
+        if (lowerText.includes(fullTerm)) {
+            score += 50
+        }
+
+        // Check individual term matches
+        let matchingTerms = 0
+        let startsWithTerm = false
+
+        for (const term of terms) {
+            if (lowerText.includes(term)) {
+                matchingTerms++
+                if (lowerText.startsWith(term)) {
+                    startsWithTerm = true
+                }
+            }
+        }
+
+        // Starts with any term: 30 points
+        if (startsWithTerm) {
+            score += 30
+        }
+
+        // Add 10 points per matching term (partial matches)
+        score += matchingTerms * 10
+
+        return score
+    }
+
+    // Step 2: Search by recipe name (highest priority)
     // Build OR conditions for each search term
     const nameConditions = searchTerms.map((_, index) =>
         `LOWER(data->>'name') LIKE $${index + 1}`
@@ -138,9 +204,13 @@ exports.searchRecipes = async (payload) => {
         nameParams
     )
 
-    nameResult.rows.forEach(row => recipeIds.add(row.id))
+    nameResult.rows.forEach(row => {
+        const recipeName = row.data.name || ''
+        const score = calculateMatchScore(recipeName, searchTerms, fullSearchTerm)
+        addScore(row.id, row.data, score)
+    })
 
-    // Step 3: Search by recipe tags
+    // Step 3: Search by recipe tags (medium priority)
     const tagsResult = await execute(
         `SELECT id, data
          FROM recipes
@@ -152,9 +222,14 @@ exports.searchRecipes = async (payload) => {
         nameParams
     )
 
-    tagsResult.rows.forEach(row => recipeIds.add(row.id))
+    tagsResult.rows.forEach(row => {
+        const recipeTags = row.data.tags || ''
+        // Tags get lower base score (20 points for exact match)
+        const score = Math.floor(calculateMatchScore(recipeTags, searchTerms, fullSearchTerm) * 0.2)
+        addScore(row.id, row.data, score)
+    })
 
-    // Step 4: Search by ingredient names and synonyms
+    // Step 4: Search by ingredient names and synonyms (lower priority)
     // 4a. Find matching food IDs
     const foodNameConditions = searchTerms.map((_, index) =>
         `LOWER(data->>'name') LIKE $${index + 1}`
@@ -169,7 +244,7 @@ exports.searchRecipes = async (payload) => {
     ).join(' OR ')
 
     const foodsResult = await execute(
-        `SELECT data->>'id' as food_id
+        `SELECT data->>'id' as food_id, data->>'name' as food_name, data->'tags' as food_tags
          FROM foods
          WHERE id IN (
            SELECT DISTINCT id FROM foods
@@ -182,6 +257,15 @@ exports.searchRecipes = async (payload) => {
     // 4b. Find recipes containing those food IDs
     if (foodsResult.rows.length > 0) {
         const foodIds = foodsResult.rows.map(row => row.food_id)
+
+        // Calculate ingredient match quality
+        const ingredientScores = new Map()
+        foodsResult.rows.forEach(row => {
+            const foodName = row.food_name || ''
+            const score = calculateMatchScore(foodName, searchTerms, fullSearchTerm)
+            ingredientScores.set(row.food_id, score)
+        })
+
         const recipesWithIngredientsResult = await execute(
             `SELECT id, data
              FROM recipes
@@ -196,37 +280,51 @@ exports.searchRecipes = async (payload) => {
             [foodIds]
         )
 
-        recipesWithIngredientsResult.rows.forEach(row => recipeIds.add(row.id))
+        recipesWithIngredientsResult.rows.forEach(row => {
+            // Calculate average ingredient match score
+            const recipeFoodIds = row.data.food_ids || []
+            let totalIngredientScore = 0
+            let matchingIngredients = 0
+
+            recipeFoodIds.forEach(foodId => {
+                if (ingredientScores.has(foodId)) {
+                    totalIngredientScore += ingredientScores.get(foodId)
+                    matchingIngredients++
+                }
+            })
+
+            // Ingredient matches get 15% of their calculated score
+            const avgScore = matchingIngredients > 0
+                ? (totalIngredientScore / matchingIngredients) * 0.15
+                : 10
+
+            addScore(row.id, row.data, avgScore)
+        })
     }
 
-    // Step 5: Get full recipe data for all matched IDs
-    if (recipeIds.size === 0) {
+    // Step 5: Sort by score and format results
+    if (recipeScores.size === 0) {
         return {
             "data": []
         }
     }
 
-    const finalResult = await execute(
-        `SELECT id, data
-         FROM recipes
-         WHERE id = ANY($1)`,
-        [Array.from(recipeIds)]
-    )
-
-    // Format response
-    const recipes = finalResult.rows.map(row => ({
-        id: row.id,
-        name: row.data.name,
-        link: row.data.link,
-        course: row.data.course,
-        difficulty: row.data.difficulty,
-        cover: row.data.cover,
-        tags: row.data.tags,
-        lang: row.data.lang,
-        food_ids: row.data.food_ids
-    }))
+    // Convert Map to array and sort by score (descending)
+    const sortedRecipes = Array.from(recipeScores.entries())
+        .sort((a, b) => b[1].score - a[1].score)
+        .map(([id, { data }]) => ({
+            id: id,
+            name: data.name,
+            link: data.link,
+            course: data.course,
+            difficulty: data.difficulty,
+            cover: data.cover,
+            tags: data.tags,
+            lang: data.lang,
+            food_ids: data.food_ids
+        }))
 
     return {
-        "data": recipes
+        "data": sortedRecipes
     }
 }
