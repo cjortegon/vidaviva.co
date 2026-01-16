@@ -33,19 +33,19 @@ else
     echo "   ⚠️  Warning: public/ directory not found"
 fi
 
-# -------------------------------------------------
-# Do not uncomment the static HTML generation step because this requires pug dependency to be installed.
-# If you need to generate static HTML files, ensure pug is installed and uncomment the following section.
-# -------------------------------------------------
+# Install only pug for building static HTML (fs and path are built-in)
+echo "📦 Installing pug for static HTML generation..."
+npm install --no-save pug
+echo "   ✓ Pug installed"
 
 # Generate static HTML files
-# echo "🔨 Building static HTML files..."
-# if [ -f "build-static.js" ]; then
-#     node build-static.js
-#     echo "   ✓ Static HTML files generated"
-# else
-#     echo "   ⚠️  Warning: build-static.js not found"
-# fi
+echo "🔨 Building static HTML files..."
+if [ -f "build-static.js" ]; then
+    node build-static.js
+    echo "   ✓ Static HTML files generated"
+else
+    echo "   ⚠️  Warning: build-static.js not found"
+fi
 
 # Copy all contents from html/ to s3_bucket/ (at the same level)
 echo "📋 Copying html/ contents to s3_bucket/..."
@@ -55,6 +55,14 @@ if [ -d "$HTML_DIR" ]; then
 else
     echo "   ⚠️  Warning: html/ directory not found"
 fi
+
+# Generate version file for cache busting
+echo "🔖 Generating version file..."
+VERSION=$(node -p "require('./package.json').version")
+TIMESTAMP=$(date +%s)
+APP_VERSION="${VERSION}.${TIMESTAMP}"
+echo "$APP_VERSION" > "$S3_BUCKET_DIR/js/version.txt"
+echo "   ✓ Version file created: $APP_VERSION"
 
 # Display summary
 echo ""
