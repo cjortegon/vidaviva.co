@@ -1,26 +1,31 @@
-// Use API_BASE_URL from config.js if available, otherwise fallback to production
-const baseUrl = (window.API_BASE_URL || 'https://gq3ykajn8g.execute-api.us-east-1.amazonaws.com/prod') + '/client/vidavida'
-
-// Search recipes via API
-function searchRecipes(searchTerm) {
-    alert('k>> Searching for: ' + searchTerm);
-    if (!searchTerm || searchTerm.trim().length === 0) {
-        return Promise.resolve([]);
+// SearchController class to manage search-related configuration
+class SearchController {
+    constructor() {
+        this.baseUrl = (window.API_BASE_URL || 'https://gq3ykajn8g.execute-api.us-east-1.amazonaws.com/prod') + '/client/vidavida'
     }
 
-    return fetch(baseUrl + '/recipes/search?s=' + encodeURIComponent(searchTerm), {
-        headers: {
-            'Authorization': 'a',
-            'Accept': 'application/json'
+    // Search recipes via API
+    searchRecipes(searchTerm) {
+        if (!searchTerm || searchTerm.trim().length === 0) {
+            return Promise.resolve([]);
         }
-    })
-    .then(response => response.json())
-    .then(result => result.data || [])
-    .catch(error => {
-        console.error('Search error:', error);
-        return [];
-    });
+
+        return fetch(this.baseUrl + '/recipes/search?s=' + encodeURIComponent(searchTerm), {
+            headers: {
+                'Authorization': 'a',
+                'Accept': 'application/json'
+            }
+        })
+        .then(response => response.json())
+        .then(result => result.data || [])
+        .catch(error => {
+            console.error('Search error:', error);
+            return [];
+        });
+    }
 }
+
+const search_controller = new SearchController()
 
 // Render search results
 function renderSearchResults(recipes) {
@@ -63,7 +68,7 @@ if (searchInput) {
         }
 
         searchTimeout = setTimeout(() => {
-            searchRecipes(searchTerm).then(results => {
+            search_controller.searchRecipes(searchTerm).then(results => {
                 renderSearchResults(results);
             });
         }, 300); // Wait 300ms after user stops typing
@@ -82,7 +87,7 @@ if (searchInput) {
     searchInput.addEventListener('click', function(e) {
         e.stopPropagation();
         if (searchInput.value.trim().length > 0) {
-            searchRecipes(searchInput.value).then(results => {
+            search_controller.searchRecipes(searchInput.value).then(results => {
                 renderSearchResults(results);
             });
         }
