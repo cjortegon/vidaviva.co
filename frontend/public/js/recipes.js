@@ -2,18 +2,22 @@ let hasEngaged = false
 let timeOpen = new Date()
 let engageTimestamp = new Date()
 
-const courses = {
-    desayunos: 'breakfast',
-    principales: 'main_course',
-    comidarapida: 'fast_food',
-    ensaladas: 'salad',
-    postres: 'dessert',
-    cocteleria: 'cocktail',
-    barista: 'barista',
+class RecipesController {
+    constructor() {
+        this.baseUrl = (window.API_BASE_URL || 'https://gq3ykajn8g.execute-api.us-east-1.amazonaws.com/prod') + '/client/vidaviva'
+        this.baseImage = '/'
+        this.courses = {
+            desayunos: 'breakfast',
+            principales: 'main_course',
+            comidarapida: 'fast_food',
+            ensaladas: 'salad',
+            postres: 'dessert',
+            cocteleria: 'cocktail',
+            barista: 'barista',
+        }
+    }
 }
-// Use API_BASE_URL from config.js if available, otherwise fallback to production
-const baseUrl = (window.API_BASE_URL || 'https://gq3ykajn8g.execute-api.us-east-1.amazonaws.com/prod') + '/client/vidaviva'
-let baseImage = ''
+const recipes_controller = new RecipesController()
 
 function loadRecipes() {
     const collection = document.getElementById('cards-collection');
@@ -25,7 +29,7 @@ function loadRecipes() {
         endpoint = '/recipes/search?s=' + encodeURIComponent(searchTerm);
     }
 
-    fetch(baseUrl + endpoint, {
+    fetch(recipes_controller.baseUrl + endpoint, {
             headers: {
                 'Authorization': 'a'
             }
@@ -60,7 +64,7 @@ function getCourse() {
     const path = window.location.pathname.toLowerCase().split('/')
     if(path.length > 1) {
         const name = path[1]
-        const id = courses[name]
+        const id = recipes_controller.courses[name]
         if(id) {
             return {
                 id,
