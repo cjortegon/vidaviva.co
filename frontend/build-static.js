@@ -17,7 +17,7 @@ if (!fs.existsSync(htmlDir)) {
 
 // Default metadata for static pages
 const default_og = {
-    title: "Vela Vida | Come y vive mejor",
+    title: "Vida Viva | Come y vive mejor",
     type: "app",
     image: "/seo/og20200604.jpg",
     description: "Más de 300 recetas para preparar con los ingredientes que tienes en casa.",
@@ -27,7 +27,7 @@ const default_og = {
 const default_twitter = {
     card: 'summary',
     site: '@velavidaoficial',
-    title: "Vela Vida",
+    title: "Vida Viva",
     image: "/seo/og20200604_rect.jpg",
     description: "Más de 300 recetas para preparar con los ingredientes que tienes en casa."
 };

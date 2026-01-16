@@ -103,7 +103,7 @@ function injectRecipeData(info) {
     }
 
     // Update page title
-    document.title = 'Vela Vida | ' + info.name;
+    document.title = 'Vida Viva | ' + info.name;
     
     // Load video
     loadVideo();
