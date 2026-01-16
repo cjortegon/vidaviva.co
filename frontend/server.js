@@ -40,7 +40,7 @@ const pixels = require('./pixels')
 
 // Default metadata
 let default_og = {
-	title: "Vela Vida | Come y vive mejor",
+	title: "Vida Viva | Come y vive mejor",
 	type: "app",
 	image: "/seo/og20200604.jpg",
 	description: "Más de 300 recetas para preparar con los ingredientes que tienes en casa.",
@@ -49,7 +49,7 @@ let default_og = {
 let default_twitter = {
 	card: 'summary',
 	site: '@velavidaoficial',
-	title: "Vela Vida",
+	title: "Vida Viva",
 	image: "/seo/og20200604_rect.jpg",
 	description: "Más de 300 recetas para preparar con los ingredientes que tienes en casa."
 }
@@ -194,16 +194,16 @@ function buildOpenGraphWithInfo(info) {
 	if(info) {
 		return {
 			og: {
-				title: `Vela Vida | ${info.name}`,
+				title: `Vida Viva | ${info.name}`,
 				type: "app",
 				image: info.image,
-				description: `${info.name} una receta de Vela Vida, conoce más descargando nuestra App.`,
+				description: `${info.name} una receta de Vida Viva, conoce más descargando nuestra App.`,
 				url: "http://www.velavida.co/"
 			},
 			twitter: {
 				card: 'summary',
 				site: '@velavidaoficial',
-				title: `Vela Vida | ${info.name}`,
+				title: `Vida Viva | ${info.name}`,
 				image: info.image,
 				description: "Conoce más recetas descargando nuestra App."
 			}

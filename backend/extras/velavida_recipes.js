@@ -210,8 +210,25 @@ exports.searchRecipes = async (payload) => {
         }
     }
 
-    // Step 1: Parse search string into keywords
-    const searchTerms = searchString.toLowerCase().split(' ').filter(term => term.length > 0)
+    // Spanish stop words to filter out from search
+    const spanishStopWords = new Set([
+        'a', 'ante', 'bajo', 'cabe', 'con', 'contra', 'de', 'desde',
+        'en', 'entre', 'hacia', 'hasta', 'para', 'por', 'según',
+        'sin', 'so', 'sobre', 'tras'
+    ])
+
+    // Step 1: Parse search string into keywords and filter stop words
+    const searchTerms = searchString.toLowerCase()
+        .split(' ')
+        .filter(term => term.length > 0 && !spanishStopWords.has(term))
+
+    // Return empty if all terms were stop words
+    if (searchTerms.length === 0) {
+        return {
+            "data": []
+        }
+    }
+
     const fullSearchTerm = searchTerms.join(' ')
 
     // Use a Map to track unique recipe IDs with their scores
