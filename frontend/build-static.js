@@ -2,6 +2,13 @@ const fs = require('fs');
 const path = require('path');
 const pug = require('pug');
 
+// Load package.json for versioning
+const packageJson = require('./package.json');
+
+// Generate cache busting version
+const APP_VERSION = `${packageJson.version}.${Date.now()}`;
+console.log(`Building with version: ${APP_VERSION}`);
+
 // Create html directory if it doesn't exist
 const htmlDir = path.join(__dirname, 'html');
 if (!fs.existsSync(htmlDir)) {
@@ -31,7 +38,8 @@ const homeTemplate = pug.compileFile(path.join(__dirname, 'views/home.pug'));
 const homeHtml = homeTemplate({
     og: default_og,
     twitter: default_twitter,
-    query: {}
+    query: {},
+    appVersion: APP_VERSION
 });
 fs.writeFileSync(path.join(htmlDir, 'home.html'), homeHtml);
 console.log('✓ home.html created');
@@ -49,13 +57,14 @@ let videoHtml = videoTemplate({
         link: '',
         ingredients: [],
         related: []
-    }
+    },
+    appVersion: APP_VERSION
 });
 
-// Inject recipeload.js AFTER video.js
+// Inject recipeload.js AFTER video.js (with version query string)
 videoHtml = videoHtml.replace(
-    '<script src="/js/video.js"></script>',
-    '<script src="/js/video.js"></script><script src="/js/recipeload.js"></script>'
+    `<script src="/js/video.js?v=${APP_VERSION}"></script>`,
+    `<script src="/js/video.js?v=${APP_VERSION}"></script><script src="/js/recipeload.js?v=${APP_VERSION}"></script>`
 );
 
 // Remove the inline loadVideo() call since recipeload.js will call it

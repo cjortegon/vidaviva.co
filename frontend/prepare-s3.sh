@@ -56,6 +56,14 @@ else
     echo "   ⚠️  Warning: html/ directory not found"
 fi
 
+# Generate version file for cache busting
+echo "🔖 Generating version file..."
+VERSION=$(node -p "require('./package.json').version")
+TIMESTAMP=$(date +%s)
+APP_VERSION="${VERSION}.${TIMESTAMP}"
+echo "$APP_VERSION" > "$S3_BUCKET_DIR/js/version.txt"
+echo "   ✓ Version file created: $APP_VERSION"
+
 # Display summary
 echo ""
 echo "✅ S3 bucket preparation complete!"
