@@ -33,20 +33,10 @@ else
     echo "   ⚠️  Warning: public/ directory not found"
 fi
 
-# Install node dependencies
-echo "📦 Installing node dependencies..."
-if [ -f "package.json" ]; then
-    # Use npm ci in CI environments (faster and more reliable), npm install otherwise
-    if [ -f "package-lock.json" ] && [ "$CI" = "true" ]; then
-        npm ci --only=production
-        echo "   ✓ Dependencies installed (using npm ci)"
-    else
-        npm install --production
-        echo "   ✓ Dependencies installed (using npm install)"
-    fi
-else
-    echo "   ⚠️  Warning: package.json not found"
-fi
+# Install only pug for building static HTML (fs and path are built-in)
+echo "📦 Installing pug for static HTML generation..."
+npm install --no-save pug
+echo "   ✓ Pug installed"
 
 # Generate static HTML files
 echo "🔨 Building static HTML files..."
