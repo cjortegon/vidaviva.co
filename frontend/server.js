@@ -9,6 +9,12 @@ const express = require('express')
 const superagent = require('superagent')
 const bodyParser = require('body-parser')
 const cors = require('cors')
+const packageJson = require('./package.json')
+
+// Cache busting version
+// In dev: uses timestamp to always reload
+// In prod: would be set by deployment process, but we use timestamp as fallback
+const APP_VERSION = `${packageJson.version}.${Date.now()}`
 
 // Starting express
 var app = express()
@@ -59,6 +65,7 @@ app.get('/descargar', function(req, res) {
 		facebook: {
 			pixel: pixels.getPixelId(req.query)
 		},
+		appVersion: APP_VERSION,
 	})
 })
 
@@ -80,7 +87,8 @@ app.get('/contratos', (req, res) => {
 				img: 'https://miro.medium.com/fit/c/120/120/1*5XWyv1KZmgcT9Cq5C8dXXw.jpeg',
 				name: 'Camilo Ortegón',
 				date: '2020-9-2',
-			}
+			},
+			appVersion: APP_VERSION,
 		})
 	})
 })
@@ -179,6 +187,7 @@ function fastRender(req, res, view, info) {
 		og,
 		twitter,
 		query: req.query,
+		appVersion: APP_VERSION,
 	})
 }
 function buildOpenGraphWithInfo(info) {
