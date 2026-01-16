@@ -33,19 +33,29 @@ else
     echo "   ⚠️  Warning: public/ directory not found"
 fi
 
-# -------------------------------------------------
-# Do not uncomment the static HTML generation step because this requires pug dependency to be installed.
-# If you need to generate static HTML files, ensure pug is installed and uncomment the following section.
-# -------------------------------------------------
+# Install node dependencies
+echo "📦 Installing node dependencies..."
+if [ -f "package.json" ]; then
+    # Use npm ci in CI environments (faster and more reliable), npm install otherwise
+    if [ -f "package-lock.json" ] && [ "$CI" = "true" ]; then
+        npm ci --only=production
+        echo "   ✓ Dependencies installed (using npm ci)"
+    else
+        npm install --production
+        echo "   ✓ Dependencies installed (using npm install)"
+    fi
+else
+    echo "   ⚠️  Warning: package.json not found"
+fi
 
 # Generate static HTML files
-# echo "🔨 Building static HTML files..."
-# if [ -f "build-static.js" ]; then
-#     node build-static.js
-#     echo "   ✓ Static HTML files generated"
-# else
-#     echo "   ⚠️  Warning: build-static.js not found"
-# fi
+echo "🔨 Building static HTML files..."
+if [ -f "build-static.js" ]; then
+    node build-static.js
+    echo "   ✓ Static HTML files generated"
+else
+    echo "   ⚠️  Warning: build-static.js not found"
+fi
 
 # Copy all contents from html/ to s3_bucket/ (at the same level)
 echo "📋 Copying html/ contents to s3_bucket/..."
