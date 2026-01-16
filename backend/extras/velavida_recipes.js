@@ -103,6 +103,103 @@ exports.getRecipeDetails = async (data) => {
     }
 }
 
+// Helper function to generate search suggestions
+async function generateSearchSuggestions(searchTerms) {
+    const suggestions = new Set()
+
+    for (const term of searchTerms) {
+        // 1. Try singular form if word ends with 's' or 'es'
+        const singularVariants = []
+        if (term.endsWith('es') && term.length > 3) {
+            singularVariants.push(term.slice(0, -2))
+        } else if (term.endsWith('s') && term.length > 2) {
+            singularVariants.push(term.slice(0, -1))
+        }
+
+        // 2. Try common phonetic replacements
+        const phoneticVariants = [
+            term.replace(/s/g, 'c'),
+            term.replace(/c/g, 's'),
+            term.replace(/v/g, 'b'),
+            term.replace(/b/g, 'v'),
+            term.replace(/z/g, 's'),
+            term.replace(/ll/g, 'y'),
+            term.replace(/y/g, 'll')
+        ]
+
+        // 3. Fragment matching - break into 3+ character fragments
+        const fragments = []
+        if (term.length >= 4) {
+            for (let i = 0; i <= term.length - 3; i++) {
+                fragments.push(term.substring(i, i + 3))
+            }
+        }
+
+        // Combine all variants to search
+        const allVariants = [...singularVariants, ...phoneticVariants]
+
+        // Search for exact matches in recipes and foods using variants
+        for (const variant of allVariants) {
+            if (variant === term || variant.length < 2) continue
+
+            try {
+                // Search in recipe names
+                const recipeResult = await execute(
+                    `SELECT DISTINCT LOWER(data->>'name') as suggestion
+                     FROM recipes
+                     WHERE data->>'lang' = 'es'
+                       AND LOWER(data->>'name') LIKE $1
+                     LIMIT 3`,
+                    [`%${variant}%`]
+                )
+
+                recipeResult.rows.forEach(row => {
+                    if (row.suggestion) suggestions.add(row.suggestion)
+                })
+
+                // Search in food names
+                const foodResult = await execute(
+                    `SELECT DISTINCT LOWER(data->>'name') as suggestion
+                     FROM foods
+                     WHERE data->>'lang' = 'es'
+                       AND LOWER(data->>'name') LIKE $1
+                     LIMIT 3`,
+                    [`%${variant}%`]
+                )
+
+                foodResult.rows.forEach(row => {
+                    if (row.suggestion) suggestions.add(row.suggestion)
+                })
+            } catch (err) {
+                console.error('Error searching variant:', variant, err)
+            }
+        }
+
+        // Search using fragments
+        for (const fragment of fragments) {
+            try {
+                const fragmentResult = await execute(
+                    `SELECT DISTINCT LOWER(data->>'name') as suggestion
+                     FROM recipes
+                     WHERE data->>'lang' = 'es'
+                       AND LOWER(data->>'name') LIKE $1
+                     LIMIT 2`,
+                    [`%${fragment}%`]
+                )
+
+                fragmentResult.rows.forEach(row => {
+                    if (row.suggestion) suggestions.add(row.suggestion)
+                })
+            } catch (err) {
+                console.error('Error searching fragment:', fragment, err)
+            }
+        }
+    }
+
+    // Return up to 5 suggestions
+    return Array.from(suggestions).slice(0, 5)
+}
+
 exports.searchRecipes = async (payload) => {
     const searchString = payload?.s || ''
 
@@ -201,8 +298,16 @@ exports.searchRecipes = async (payload) => {
 
     // Step 5: Get full recipe data for all matched IDs
     if (recipeIds.size === 0) {
+        // Generate suggestions when no results found
+        const suggestions = await generateSearchSuggestions(searchTerms)
+
         return {
-            "data": []
+            "data": {
+                "bases": config.velavida.bases,
+                "searchRecipes": [],
+                "suggestions": suggestions,
+                "searchTerm": searchString
+            }
         }
     }
 
@@ -227,6 +332,9 @@ exports.searchRecipes = async (payload) => {
     }))
 
     return {
-        "data": recipes
+        "data": {
+            "bases": config.velavida.bases,
+            "searchRecipes": recipes
+        }
     }
 }

@@ -7,7 +7,7 @@ class SearchController {
     // Search recipes via API
     searchRecipes(searchTerm) {
         if (!searchTerm || searchTerm.trim().length === 0) {
-            return Promise.resolve([]);
+            return Promise.resolve({ data: {} });
         }
 
         return fetch(this.baseUrl + '/recipes/search?s=' + encodeURIComponent(searchTerm), {
@@ -17,19 +17,20 @@ class SearchController {
             }
         })
         .then(response => response.json())
-        .then(result => result.data || [])
         .catch(error => {
             console.error('Search error:', error);
-            return [];
+            return { data: {} };
         });
     }
 }
 
 const search_controller = new SearchController()
 
-// Render search results
-function renderSearchResults(recipes) {
+// Render search results for dropdown (simple, no suggestions)
+function renderSearchResults(result) {
     const resultsContainer = document.getElementById('search-results');
+    const data = result.data || {};
+    const recipes = data.searchRecipes || [];
 
     if (!recipes || recipes.length === 0) {
         resultsContainer.innerHTML = '<div class="dropdown-item disabled">No se encontraron recetas</div>';
