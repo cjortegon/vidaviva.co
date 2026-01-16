@@ -38,13 +38,36 @@ function loadRecipes() {
         .then(json => {
             const data = json.data
             console.log(JSON.stringify(json))
-            // For search results, data is an array directly, for random it's nested
-            const recipes = Array.isArray(data) ? data : (data.randomRecipes || [])
+            // Both endpoints now return the same structure
+            const recipes = data.randomRecipes || data.searchRecipes || []
+            const suggestions = data.suggestions || []
+            const searchedTerm = data.searchTerm || searchTerm
             // baseImage = data.bases.images || ''
             baseImage = '/'
 
-            if (recipes.length === 0 && searchTerm) {
-                collection.innerHTML = '<div class="col-12 text-center mt-5"><h3>No se encontraron recetas para "' + searchTerm + '"</h3></div>';
+            if (recipes.length === 0 && searchedTerm) {
+                let html = '<div class="col-12 text-center mt-5">';
+                html += '<div class="card" style="padding: 30px; max-width: 600px; margin: 0 auto;">';
+                html += '<i class="fas fa-search" style="font-size: 3em; color: #999; margin-bottom: 15px;"></i>';
+                html += '<h3 style="margin-bottom: 15px;">No se encontraron recetas</h3>';
+                html += '<p style="color: #666; margin-bottom: 20px;">No hay resultados para: <strong>"' + searchedTerm + '"</strong></p>';
+
+                if (suggestions && suggestions.length > 0) {
+                    html += '<div style="margin-top: 20px; padding-top: 20px; border-top: 1px solid #dee2e6;">';
+                    html += '<p style="color: #666; margin-bottom: 15px;">¿Quisiste decir?</p>';
+                    html += '<div style="display: flex; flex-wrap: wrap; gap: 10px; justify-content: center;">';
+                    suggestions.forEach(function(suggestion) {
+                        html += '<a href="?s=' + encodeURIComponent(suggestion) + '" class="btn btn-primary" style="border-radius: 20px; padding: 8px 20px;">';
+                        html += suggestion;
+                        html += '</a>';
+                    });
+                    html += '</div>';
+                    html += '</div>';
+                }
+
+                html += '</div>';
+                html += '</div>';
+                collection.innerHTML = html;
             } else {
                 collection.innerHTML = recipes
                     .filter(function(recipe){return recipe.cover && recipe.cover.length > 0})

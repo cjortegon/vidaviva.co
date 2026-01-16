@@ -7,7 +7,7 @@ class SearchController {
     // Search recipes via API
     searchRecipes(searchTerm) {
         if (!searchTerm || searchTerm.trim().length === 0) {
-            return Promise.resolve({ data: [], suggestions: [] });
+            return Promise.resolve({ data: {} });
         }
 
         return fetch(this.baseUrl + '/recipes/search?s=' + encodeURIComponent(searchTerm), {
@@ -17,79 +17,24 @@ class SearchController {
             }
         })
         .then(response => response.json())
-        .then(result => {
-            return {
-                data: result.data || [],
-                suggestions: result.suggestions || [],
-                searchTerm: result.searchTerm || searchTerm
-            };
-        })
         .catch(error => {
             console.error('Search error:', error);
-            return { data: [], suggestions: [], searchTerm: searchTerm };
+            return { data: {} };
         });
     }
 }
 
 const search_controller = new SearchController()
 
-// Render search results
+// Render search results for dropdown (simple, no suggestions)
 function renderSearchResults(result) {
     const resultsContainer = document.getElementById('search-results');
-    const recipes = result.data || [];
-    const suggestions = result.suggestions || [];
-    const searchTerm = result.searchTerm || '';
+    const data = result.data || {};
+    const recipes = data.searchRecipes || [];
 
     if (!recipes || recipes.length === 0) {
-        let html = '<div class="dropdown-item disabled" style="white-space: normal; padding: 15px;">';
-        html += '<div style="margin-bottom: 10px;">';
-        html += '<i class="fas fa-search" style="color: #999; margin-right: 8px;"></i>';
-        html += '<strong>No se encontraron resultados para:</strong>';
-        html += '</div>';
-        html += '<div style="background-color: #f8f9fa; padding: 8px 12px; border-radius: 4px; margin-bottom: 10px; font-style: italic;">';
-        html += '"' + searchTerm + '"';
-        html += '</div>';
-
-        if (suggestions && suggestions.length > 0) {
-            html += '<div style="margin-top: 12px; padding-top: 12px; border-top: 1px solid #dee2e6;">';
-            html += '<div style="margin-bottom: 8px; color: #666; font-size: 0.9em;">¿Quisiste decir?</div>';
-            html += '<div style="display: flex; flex-wrap: wrap; gap: 6px;">';
-            suggestions.forEach(function(suggestion) {
-                html += '<span class="suggestion-tag" style="background-color: #007bff; color: white; padding: 4px 10px; border-radius: 12px; cursor: pointer; font-size: 0.85em; transition: background-color 0.2s;" data-suggestion="' + suggestion + '">';
-                html += suggestion;
-                html += '</span>';
-            });
-            html += '</div>';
-            html += '</div>';
-        }
-        html += '</div>';
-
-        resultsContainer.innerHTML = html;
+        resultsContainer.innerHTML = '<div class="dropdown-item disabled">No se encontraron recetas</div>';
         resultsContainer.classList.add('show');
-
-        // Add click handlers to suggestion tags
-        const suggestionTags = resultsContainer.querySelectorAll('.suggestion-tag');
-        suggestionTags.forEach(function(tag) {
-            tag.addEventListener('click', function(e) {
-                e.stopPropagation();
-                const suggestion = this.getAttribute('data-suggestion');
-                const searchInput = document.getElementById('search-input');
-                if (searchInput) {
-                    searchInput.value = suggestion;
-                    search_controller.searchRecipes(suggestion).then(function(results) {
-                        renderSearchResults(results);
-                    });
-                }
-            });
-
-            // Add hover effect
-            tag.addEventListener('mouseenter', function() {
-                this.style.backgroundColor = '#0056b3';
-            });
-            tag.addEventListener('mouseleave', function() {
-                this.style.backgroundColor = '#007bff';
-            });
-        });
         return;
     }
 
@@ -146,21 +91,6 @@ if (searchInput) {
             search_controller.searchRecipes(searchInput.value).then(results => {
                 renderSearchResults(results);
             });
-        }
-    });
-
-    // Handle Enter key - prevent clearing and trigger search
-    searchInput.addEventListener('keydown', function(e) {
-        if (e.key === 'Enter') {
-            e.preventDefault();
-            clearTimeout(searchTimeout);
-            const searchTerm = searchInput.value;
-
-            if (searchTerm && searchTerm.trim().length > 0) {
-                search_controller.searchRecipes(searchTerm).then(results => {
-                    renderSearchResults(results);
-                });
-            }
         }
     });
 }

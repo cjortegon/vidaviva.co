@@ -302,9 +302,12 @@ exports.searchRecipes = async (payload) => {
         const suggestions = await generateSearchSuggestions(searchTerms)
 
         return {
-            "data": [],
-            "suggestions": suggestions,
-            "searchTerm": searchString
+            "data": {
+                "bases": config.velavida.bases,
+                "searchRecipes": [],
+                "suggestions": suggestions,
+                "searchTerm": searchString
+            }
         }
     }
 
@@ -329,6 +332,9 @@ exports.searchRecipes = async (payload) => {
     }))
 
     return {
-        "data": recipes
+        "data": {
+            "bases": config.velavida.bases,
+            "searchRecipes": recipes
+        }
     }
 }
